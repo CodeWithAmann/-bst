@@ -1,0 +1,321 @@
+1 ans :- 
+class TreeNode {
+    int data;
+    TreeNode left, right;
+
+    public TreeNode(int item) {
+        data = item;
+        left = right = null;
+    }
+}
+
+public class BSTSearch {
+    TreeNode root;
+
+    // Method to insert a new node
+    TreeNode insert(TreeNode node, int data) {
+        if (node == null) {
+            node = new TreeNode(data);
+            return node;
+        }
+
+        if (data < node.data)
+            node.left = insert(node.left, data);
+        else if (data > node.data)
+            node.right = insert(node.right, data);
+
+        return node;
+    }
+
+    // Iterative method to search a given key in BST
+    boolean search(TreeNode root, int key) {
+        while (root != null) {
+            if (key < root.data)
+                root = root.left;
+            else if (key > root.data)
+                root = root.right;
+            else
+                return true; // key is found
+        }
+        return false; // key is not found
+    }
+
+    public static void main(String[] args) {
+        BSTSearch tree = new BSTSearch();
+
+        int[] keys = {15, 10, 20, 8, 12, 16, 25};
+        for (int key : keys) {
+            tree.root = tree.insert(tree.root, key);
+        }
+
+        int searchKey = 25;
+        if (tree.search(tree.root, searchKey))
+            System.out.println("Key " + searchKey + " found in BST.");
+        else
+            System.out.println("Key " + searchKey + " not found in BST.");
+    }
+}
+Q2. Find k'th Largest Node in BST
+To find the k'th largest node in a BST, we can do a reverse in-order traversal.
+
+java
+Copy code
+class BSTKthLargest {
+    TreeNode root;
+    int count = 0;
+    int result = -1;
+
+    // Method to insert a new node
+    TreeNode insert(TreeNode node, int data) {
+        if (node == null) {
+            node = new TreeNode(data);
+            return node;
+        }
+
+        if (data < node.data)
+            node.left = insert(node.left, data);
+        else if (data > node.data)
+            node.right = insert(node.right, data);
+
+        return node;
+    }
+
+    // Method to find the k'th largest node
+    void kthLargestUtil(TreeNode node, int k) {
+        if (node == null || count >= k)
+            return;
+
+        kthLargestUtil(node.right, k);
+
+        count++;
+        if (count == k) {
+            result = node.data;
+            return;
+        }
+
+        kthLargestUtil(node.left, k);
+    }
+
+    int kthLargest(TreeNode root, int k) {
+        kthLargestUtil(root, k);
+        return result;
+    }
+
+    public static void main(String[] args) {
+        BSTKthLargest tree = new BSTKthLargest();
+
+        int[] keys = {15, 10, 20, 8, 12, 16, 25};
+        for (int key : keys) {
+            tree.root = tree.insert(tree.root, key);
+        }
+
+        int k = 2;
+        System.out.println(k + "'th largest element is " + tree.kthLargest(tree.root, k));
+    }
+}
+Q3. Find Pair with Given Sum in BST
+To find a pair with a given sum in a BST, we can use in-order and reverse in-order traversal simultaneously.
+
+java
+Copy code
+import java.util.Stack;
+
+class BSTPairSum {
+    TreeNode root;
+
+    // Method to insert a new node
+    TreeNode insert(TreeNode node, int data) {
+        if (node == null) {
+            node = new TreeNode(data);
+            return node;
+        }
+
+        if (data < node.data)
+            node.left = insert(node.left, data);
+        else if (data > node.data)
+            node.right = insert(node.right, data);
+
+        return node;
+    }
+
+    // Method to find a pair with the given sum
+    boolean findPair(TreeNode root, int sum) {
+        Stack<TreeNode> s1 = new Stack<>();
+        Stack<TreeNode> s2 = new Stack<>();
+
+        TreeNode curr1 = root, curr2 = root;
+        boolean done1 = false, done2 = false;
+        int val1 = 0, val2 = 0;
+
+        while (true) {
+            while (!done1) {
+                if (curr1 != null) {
+                    s1.push(curr1);
+                    curr1 = curr1.left;
+                } else {
+                    if (s1.isEmpty()) done1 = true;
+                    else {
+                        curr1 = s1.pop();
+                        val1 = curr1.data;
+                        curr1 = curr1.right;
+                        done1 = true;
+                    }
+                }
+            }
+
+            while (!done2) {
+                if (curr2 != null) {
+                    s2.push(curr2);
+                    curr2 = curr2.right;
+                } else {
+                    if (s2.isEmpty()) done2 = true;
+                    else {
+                        curr2 = s2.pop();
+                        val2 = curr2.data;
+                        curr2 = curr2.left;
+                        done2 = true;
+                    }
+                }
+            }
+
+            if ((val1 != val2) && (val1 + val2 == sum)) {
+                System.out.println("Pair Found: (" + val1 + ", " + val2 + ")");
+                return true;
+            } else if (val1 + val2 < sum)
+                done1 = false;
+            else if (val1 + val2 > sum)
+                done2 = false;
+
+            if (val1 >= val2)
+                return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        BSTPairSum tree = new BSTPairSum();
+
+        int[] keys = {15, 10, 20, 8, 12, 16, 25};
+        for (int key : keys) {
+            tree.root = tree.insert(tree.root, key);
+        }
+
+        int sum = 14;
+        if (!tree.findPair(tree.root, sum))
+            System.out.println("No pair found with the given sum.");
+    }
+}
+Q4. Inorder Predecessor in BST
+To find the inorder predecessor, we need to consider the left subtree and the rightmost node in that subtree.
+
+java
+Copy code
+class BSTInorderPredecessor {
+    TreeNode root;
+
+    // Method to insert a new node
+    TreeNode insert(TreeNode node, int data) {
+        if (node == null) {
+            node = new TreeNode(data);
+            return node;
+        }
+
+        if (data < node.data)
+            node.left = insert(node.left, data);
+        else if (data > node.data)
+            node.right = insert(node.right, data);
+
+        return node;
+    }
+
+    // Method to find the inorder predecessor
+    TreeNode inorderPredecessor(TreeNode root, TreeNode node) {
+        if (node.left != null)
+            return findMax(node.left);
+
+        TreeNode predecessor = null;
+        while (root != null) {
+            if (node.data < root.data) {
+                root = root.left;
+            } else if (node.data > root.data) {
+                predecessor = root;
+                root = root.right;
+            } else
+                break;
+        }
+        return predecessor;
+    }
+
+    TreeNode findMax(TreeNode node) {
+        while (node.right != null)
+            node = node.right;
+        return node;
+    }
+
+    public static void main(String[] args) {
+        BSTInorderPredecessor tree = new BSTInorderPredecessor();
+
+        int[] keys = {15, 10, 20, 8, 12, 16, 25};
+        for (int key : keys) {
+            tree.root = tree.insert(tree.root, key);
+        }
+
+        TreeNode node = tree.root.left.right; // Node 12
+        TreeNode predecessor = tree.inorderPredecessor(tree.root, node);
+        if (predecessor != null)
+            System.out.println("Inorder Predecessor of " + node.data + " is " + predecessor.data);
+        else
+            System.out.println("No Inorder Predecessor for " + node.data);
+    }
+}
+Q5. Lowest Common Ancestor (LCA) in BST
+To find the LCA of two nodes in a BST, we can use the properties of BST.
+
+java
+Copy code
+class BSTLCA {
+    TreeNode root;
+
+    // Method to insert a new node
+    TreeNode insert(TreeNode node, int data) {
+        if (node == null) {
+            node = new TreeNode(data);
+            return node;
+        }
+
+        if (data < node.data)
+            node.left = insert(node.left, data);
+        else if (data > node.data)
+            node.right = insert(node.right, data);
+
+        return node;
+    }
+
+    // Method to find LCA
+    TreeNode findLCA(TreeNode node, int n1, int n2) {
+        while (node != null) {
+            if (node.data > n1 && node.data > n2)
+                node = node.left;
+            else if (node.data < n1 && node.data < n2)
+                node = node.right;
+            else
+                break;
+        }
+        return node;
+    }
+
+    public static void main(String[] args) {
+        BSTLCA tree = new BSTLCA();
+
+        int[] keys = {15, 10, 20, 8, 12, 16, 25};
+        for (int key : keys) {
+            tree.root = tree.insert(tree.root, key);
+        }
+
+        int n1 = 10, n2 = 12;
+        TreeNode lca = tree.findLCA(tree.root, n1, n2);
+        if (lca != null)
+            System.out.println("LCA of " + n1 + " and " + n2 + " is " + lca.data);
+        else
+            System.out.println("LCA not found.");
+    }
+}
